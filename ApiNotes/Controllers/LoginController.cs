@@ -1,97 +1,67 @@
 ﻿using ApiNotes.Context;
+using ApiNotes.Controllers.Interfaces;
 using ApiNotes.Entities;
+using ApiNotes.Interfaces;
 using ApiNotes.Interfaces.InterfacesController;
 using ApiNotes.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
+using System.Linq.Expressions;
 
 namespace ApiNotes.Controllers
 {
+
     [Route("[controller]")]
     [ApiController]
-    public class LoginController : ControllerBase
+    public class LoginController : ControllerBase, IControllerPattern<Login>
     {
-        private readonly LoginService _services;
+        private readonly IUnitOfWork _uof;
 
-        public LoginController(AppDbContext context)
+        public LoginController(IUnitOfWork unitOfWork)
         {
-            _services = new LoginService(context);
-        }
-
-        [HttpDelete("{id:int:min(1)}")]
-        public ActionResult<Login> Delete(int id)
-        {
-            try
-            {
-                Login login = _services.Delete(id);
-
-                if (login is null)
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação");
-                }
-                return Ok();
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação");
-            }
+            _uof = unitOfWork;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Login>> Get()
         {
-            var list = _services.Get();
-            //Any(), verifica se uma lista está vazia
-            if(list is null || !list.Any())
-            {
-                throw new Exception("Lista vazia");
-            }   
-            
-            return Ok(list);
+            return Ok(_uof.LoginService.Get());
         }
 
-        [HttpGet("{id:int:min(1)}")]
+        [HttpGet("login/{id:int}")]
         public ActionResult<Login> GetId(int id)
         {
-            try
-            {
-                Login login  = _services.GetId(id);
-                return Ok(login);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação");
-            }
-
+            return Ok(_uof.LoginService.GetId(p => p.Id == id));
         }
 
         [HttpPost]
         public ActionResult<Login> Post(Login entidade)
         {
-            try
-            {
-                Login login = _services.Post(entidade); 
-                return Ok(login);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação");
-            }
+            _uof.LoginService.Post(entidade);
+            return new CreatedAtRouteResult("ObterCategoria", new { id = entidade.Id }, entidade);
         }
-
 
         [HttpPut("{id:int}")]
-        public ActionResult<Login> Put(int id, Login entidade)
+        public ActionResult<Login> Put(int id, Login login)
         {
-            try
-            {
-                var list = _services.Put(id,entidade);
-                return Ok(list);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação");
-            }
+            return Ok(_uof.LoginService.Put(login));
+        }
+
+        [HttpDelete("{id:int}")]
+        public ActionResult<Login> Delete(int id)
+        {
+            Login entidade = _uof.LoginService.GetId(p => p.Id == id);
+
+            return Ok(_uof.LoginService?.Delete(entidade));
+        }
+
+
+        [HttpGet("usuario/{id:int}")]
+        public ActionResult<Login> ConsultarUsuarioPorLogin(int id)
+        {
+            return Ok(_uof.LoginService.ConsultarLoginPorUsuario(id));
+        }
         }
     }
-}
+

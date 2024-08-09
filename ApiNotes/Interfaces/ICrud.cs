@@ -1,11 +1,13 @@
-﻿namespace ApiNotes.Interfaces
+﻿using System.Linq.Expressions;
+
+namespace ApiNotes.Interfaces
 {
     public interface ICrud<T>
     {
         public IEnumerable<T> Get();
-        public T GetId(int id);
+        public T GetId(Expression<Func<T, bool>> predicate);
         public T Post(T entidade);
-        public T Put(int id, T entidade);
-        public T Delete(int id);
+        public T Put(T entidade);
+        public T Delete(T entidade);
     }
 }

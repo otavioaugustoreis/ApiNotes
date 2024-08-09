@@ -8,6 +8,16 @@ namespace ApiNotes.Entities
     
     public sealed class User : BaseEntity
     {
+
+        public User() { }
+        public User(int id, string name, DateTime dateOfInclusion , string email, int age, ICollection<Paths>? paths, Login login) : base(id, name, dateOfInclusion)
+        {
+            Email = email;
+            Age = age;
+            _Paths = paths;
+            _Login = login;
+        }
+
         [Required(ErrorMessage = "O e-mail é obrgatório")]
         [RegularExpression(".+\\@.+\\..+", ErrorMessage = "Informe um e-mail válido")]
         [Column("ds_email")]
@@ -20,9 +30,13 @@ namespace ApiNotes.Entities
         public int Age { get; set; }
 
         [JsonIgnore]
-        public  ICollection<Paths>? Paths { get; set; }
+        public  ICollection<Paths>? _Paths { get; set; }
 
         [JsonIgnore]
-        public Login Login { get; set; }
+        public Login? _Login { get; set; }
+
+
+        [JsonIgnore]
+        public IEnumerable<Note>? _Notes { get; set; }
     }
 }

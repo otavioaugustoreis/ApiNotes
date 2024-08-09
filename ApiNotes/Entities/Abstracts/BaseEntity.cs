@@ -6,6 +6,16 @@ namespace ApiNotes.Entities.Abstracts
 {
     public abstract class BaseEntity
     {
+
+        public BaseEntity() { }
+
+        protected BaseEntity(int id, string name, DateTime dateOfInclusion)
+        {
+            Id = id;
+            Name = name;
+            DateOfInclusion = dateOfInclusion;
+        }
+
         [Key]
         [Column("pk_id")]
         public int Id { get; set; }

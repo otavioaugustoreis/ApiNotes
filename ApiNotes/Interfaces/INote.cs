@@ -4,5 +4,6 @@ namespace ApiNotes.Interfaces
 {
     public interface INote : ICrud<Note>
     {
+
     }
 }

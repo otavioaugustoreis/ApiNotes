@@ -2,59 +2,27 @@
 using ApiNotes.Entities;
 using ApiNotes.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using System.Reflection.Metadata.Ecma335;
 
 namespace ApiNotes.Services
 {
-    public class LoginService : ILogin
+    public sealed class LoginService : Repository<Login>, ILogin
     {
-        private readonly AppDbContext _context;
-
-        public LoginService(AppDbContext context)
+        //Injeção de dependência
+        //Aqui já podemos usar
+        public LoginService(AppDbContext context) : base(context)
         {
-            _context = context;
+
         }
 
-        public Login Delete(int id)
+        public IEnumerable<Login> ConsultarLoginPorUsuario(int id)
         {
-            Login login = _context.Logins.AsNoTracking().FirstOrDefault(x => x.Id == id);
-
-            _context.Logins.Remove(login);
-            _context.SaveChanges();
-            
-            return login;
-        }
-
-        public IEnumerable<Login> Get()
-        {
-            var list = _context.Logins.ToList();
-            return list;
-        }
-
-        public Login GetId(int id)
-        {
-            Login login = _context.Logins.AsNoTracking().FirstOrDefault(x => x.Id == id);
-            return login;
-        }
-
-        public Login Post(Login entidade)
-        {
-            _context.Logins.Add(entidade);
-            _context.SaveChanges();
-            return entidade;
-        }
-
-        public Login Put(int id, Login entidade)
-        {
-            if (id == entidade.Id)
-            {
-                return null;
-            }
-
-            _context.Entry(entidade).State = EntityState.Modified;
-            _context.SaveChanges();
-
-            return entidade;
+            //O método Where por padrão já retorna uma lista
+            //o DbContext tem funções que exercem a mesma função no SQL, como Where, Select, OrderBy e entre outros...
+            return _context.Logins
+                .Include(l => l.User)
+                .Where(l => l.UserId == id);
         }
     }
 }

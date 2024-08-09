@@ -5,9 +5,20 @@ using System.Text.Json.Serialization;
 
 namespace ApiNotes.Entities
 {
-    [Table("TB_PATH")]
+    //[Table("TB_PATH")]
     public sealed class Paths : BaseEntity
     {   
+
+        public Paths() { }
+
+        public Paths(string? description, int userId, User? user, ICollection<Note>? notes) : base()
+        {
+            Description = description;
+            UserId = _User.Id;
+            _User = user;
+            Notes = notes;
+        }
+
         [Column("ds_descricao")]
         public string? Description { get; set; }
 
@@ -17,8 +28,8 @@ namespace ApiNotes.Entities
 
         [Required]
         [Column("fk_usuario")]
-        public User? User { get; set; }
-
+        public User? _User { get; set; }
+        
         [JsonIgnore]
         public ICollection<Note>? Notes { get; set; }
     }   
